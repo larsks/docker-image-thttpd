@@ -1,0 +1,87 @@
+diff --git a/thttpd.c b/thttpd.c
+index fe21b44..397feb1 100644
+--- a/thttpd.c
++++ b/thttpd.c
+@@ -400,22 +400,6 @@ main( int argc, char** argv )
+     if ( throttlefile != (char*) 0 )
+ 	read_throttlefile( throttlefile );
+ 
+-    /* If we're root and we're going to become another user, get the uid/gid
+-    ** now.
+-    */
+-    if ( getuid() == 0 )
+-	{
+-	pwd = getpwnam( user );
+-	if ( pwd == (struct passwd*) 0 )
+-	    {
+-	    syslog( LOG_CRIT, "unknown user - '%.80s'", user );
+-	    (void) fprintf( stderr, "%s: unknown user - '%s'\n", argv0, user );
+-	    exit( 1 );
+-	    }
+-	uid = pwd->pw_uid;
+-	gid = pwd->pw_gid;
+-	}
+-
+     /* Log file. */
+     if ( logfile != (char*) 0 )
+ 	{
+@@ -441,17 +425,6 @@ main( int argc, char** argv )
+ 		(void) fprintf( stderr, "%s: logfile is not an absolute path, you may not be able to re-open it\n", argv0 );
+ 		}
+ 	    (void) fcntl( fileno( logfp ), F_SETFD, 1 );
+-	    if ( getuid() == 0 )
+-		{
+-		/* If we are root then we chown the log file to the user we'll
+-		** be switching to.
+-		*/
+-		if ( fchown( fileno( logfp ), uid, gid ) < 0 )
+-		    {
+-		    syslog( LOG_WARNING, "fchown logfile - %m" );
+-		    perror( "fchown logfile" );
+-		    }
+-		}
+ 	    }
+ 	}
+     else
+@@ -680,41 +653,6 @@ main( int argc, char** argv )
+     stats_bytes = 0;
+     stats_simultaneous = 0;
+ 
+-    /* If we're root, try to become someone else. */
+-    if ( getuid() == 0 )
+-	{
+-	/* Set aux groups to null. */
+-	if ( setgroups( 0, (const gid_t*) 0 ) < 0 )
+-	    {
+-	    syslog( LOG_CRIT, "setgroups - %m" );
+-	    exit( 1 );
+-	    }
+-	/* Set primary group. */
+-	if ( setgid( gid ) < 0 )
+-	    {
+-	    syslog( LOG_CRIT, "setgid - %m" );
+-	    exit( 1 );
+-	    }
+-	/* Try setting aux groups correctly - not critical if this fails. */
+-	if ( initgroups( user, gid ) < 0 )
+-	    syslog( LOG_WARNING, "initgroups - %m" );
+-#ifdef HAVE_SETLOGIN
+-	/* Set login name. */
+-        (void) setlogin( user );
+-#endif /* HAVE_SETLOGIN */
+-	/* Set uid. */
+-	if ( setuid( uid ) < 0 )
+-	    {
+-	    syslog( LOG_CRIT, "setuid - %m" );
+-	    exit( 1 );
+-	    }
+-	/* Check for unnecessary security exposure. */
+-	if ( ! do_chroot )
+-	    syslog(
+-		LOG_WARNING,
+-		"started as root without requesting chroot(), warning only" );
+-	}
+-
+     /* Initialize our connections table. */
+     connects = NEW( connecttab, max_connects );
+     if ( connects == (connecttab*) 0 )
