@@ -6,7 +6,7 @@ RUN sh build-thttpd-static
 
 FROM scratch
 WORKDIR /
-COPY --from=0 /build/thttpd /thttpd
-COPY index.html /index.html
-ENTRYPOINT ["/thttpd", "-D", "-l", "/dev/stderr"]
-
+COPY --from=0 /build/thttpd /bin/thttpd
+COPY index.html /www/index.html
+ENTRYPOINT ["/bin/thttpd", "-D", "-l", "/dev/stderr"]
+CMD ["-d", "/www"]
