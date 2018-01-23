@@ -1,8 +1,0 @@
-#!/bin/sh
-
-svn checkout http://onehttpd.googlecode.com/svn/trunk/ /onehttpd
-cd /onehttpd
-sed -i '/gcc.*-g/ s/-g/-static -O3/' Makefile
-make onehttpd
-install -s -o ${TARGETUID:-${UID:-0}} -m 755 onehttpd /output/
-

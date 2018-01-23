@@ -1,0 +1,12 @@
+#!/bin/sh
+
+: ${THTTPD_VERSION:=2.26}
+
+set -e
+curl -sf -o thttpd-${THTTPD_VERSION}.tar.gz http://acme.com/software/thttpd/thttpd-${THTTPD_VERSION}.tar.gz
+tar xf thttpd-${THTTPD_VERSION}.tar.gz
+cd thttpd-${THTTPD_VERSION}
+patch -p1 < /build/thttpd-runasroot.patch
+./configure
+make CCOPT='-O2 -static' thttpd
+install -m 755 -s thttpd /build
