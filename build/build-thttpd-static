@@ -1,6 +1,6 @@
 #!/bin/sh
 
-: ${THTTPD_VERSION:=2.26}
+: ${THTTPD_VERSION:=2.29}
 
 set -e
 curl -sf -o thttpd-${THTTPD_VERSION}.tar.gz http://acme.com/software/thttpd/thttpd-${THTTPD_VERSION}.tar.gz
